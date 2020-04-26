@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.main{
+				width:400px;
+				height:300px;
+				border:1px solid #dedede;
+			}
+			.needToDo{
+				width:400px;
+				height:50px;
+				border-bottom:1px solid #dedede;
+				display: flex;
+			}
+			.inp{
+				width:280px;
+				height:48px;
+				border:0;
+				outline: none;
+				font-size: 20px;
+				text-align: right;
+				margin:0 auto;
+				
+			}
+			.plas{
+				text-align: right;
+				text-indent: 10px;
+			}
+			.save{
+				width:100px;
+				height:50px;
+				border: 0;
+				line-height: 50px;
+			}
+			.saveContent{
+				width:400px;
+				height:250px;
+			}
+			.saveContent p,.finished p{
+				text-indent: 10px;
+				width:100%;
+				height: 30px;
+				line-height: 30px;
+				padding: 0;
+				margin: 0;
+			}
+			.saveContent ul{
+				width:400px;
+				height:220px;
+				overflow: scroll;
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			.saveContent ul li{
+				border-bottom: 1px solid #cecece;
+				height:40px;
+				line-height: 40px;
+				text-indent: 20px;
+			}
+			.saveContent ul li:last-of-type{
+				border-bottom: 0;
+			}
+			.saveContent ul::-webkit-scrollbar { width: 0 !important }
+			.finished{
+				width:400px;
+				height:300px;
+				border: 1px solid #dedede;
+				margin-top: 20px;;
+			}
+			.finished ul{
+				width:100%;
+				height:240px;
+				padding: 0;
+				margin: 0;
+				list-style: none;
+				overflow-y:scroll;
+			}
+			.finished ul li{
+				border-bottom: 1px solid #cecece;
+				height:40px;
+				line-height: 40px;
+				text-indent: 20px;
+				text-decoration: line-through;
+			}
+			.finished ul li:last-of-type{
+				border-bottom: 0;
+			}
+			.finished ul::-webkit-scrollbar { width: 0 !important }
+			.clearAll{
+				text-decoration: underline;
+				cursor: pointer;
+				color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="main">
+			<div class="needToDo">
+				<input class="inp" type="text" id="inp" placeholder="请输入你想要完成的事情" placeholder-class="plas" />
+				<button type="button" class="save" id="saveData">保存</button>
+			</div>
+			<div class="saveContent">
+				<p>未完成</p>
+				<ul class="saveUl" id="saveUl">
+				</ul>
+			</div>
+		</div>
+		<div class="finished">
+			<p>已完成</p>
+			<p>
+				<a class="clearAll" id="clearAll">清空已完成</a>
+			</p>
+			<ul class="finishedUl" id="finishedUl">
+			</ul>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var inp = document.getElementById('inp');
+		var saveData = document.getElementById('saveData')
+		var saveUl = document.getElementById('saveUl')
+		var unfinished = localStorage.getItem('unfinished');
+		var finished = localStorage.getItem('finished');
+		var arrs = []
+		var finishedArrs = [];
+		if (unfinished) {
+			arrs = unfinished.split(',');
+			for (var i = 0; i < arrs.length; i++) {
+				var dom = document.createElement('li');
+				dom.innerHTML = '<input type = "checkbox"  name="checkVal" value=' + arrs[i] + ' />' +
+					'<span>' + arrs[i] + '</span>'
+				saveUl.appendChild(dom);
+			}
+
+
+		}
+		if(finished){
+			finishedArrs = finished.split(',');
+			for (var i = 0; i < finishedArrs.length; i++) {
+				var dom = document.createElement('li');
+				dom.innerHTML = '<input type = "checkbox" checked  name="checkVal" value=' + finishedArrs[i] + ' />' +
+					'<span>' + finishedArrs[i] + '</span>'
+				finishedUl.appendChild(dom);
+			}
+		}
+		// 添加进页面
+		saveData.addEventListener('click', function() {
+			var dom = document.createElement('li');
+			dom.innerHTML = '<input type = "checkbox" name="checkVal" value=' + inp.value + ' />' +
+				'<span>' + inp.value + '</span>'
+			saveUl.appendChild(dom);
+			arrs.push(inp.value)
+			console.log(arrs)
+			localStorage.setItem('unfinished', arrs)
+			inp.value = ""
+		})
+		var checkBoxs = document.getElementsByName("checkVal");
+		//添加完成效果，点击checkbox，此项就加入已完成
+		for (var i = 0; i < checkBoxs.length; i++) {
+			checkBoxs[i].addEventListener('change', function(event) {
+				console.log(event)
+				var parentLi = event.target.parentNode;
+				parentLi.style.textDecoration = "line-through"
+				console.log(parentLi.innerText)
+				finishedArrs.push(parentLi.innerText)
+				console.log(finishedArrs,'---')
+				for (var j = 0; j < arrs.length; j++) {
+					if (arrs[j] == parentLi.innerText) {
+						console.log(j)
+						//查到当前选中的是数组中的第几个，然后从未完成中删掉，加入已完成
+						arrs.splice(j, 1)
+						console.log(arrs,'删除了后的arrs')
+						localStorage.setItem('unfinished', arrs)
+						window.location.reload();
+					}
+				}
+				localStorage.setItem('finished', finishedArrs)
+			})
+
+		}
+		var clearAll = document.getElementById('clearAll');
+		clearAll.addEventListener('click',function(){
+			localStorage.removeItem('finished');
+			window.location.reload();
+			alert("清空完成")
+		})
+	</script>
+</html>
